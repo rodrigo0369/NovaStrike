@@ -35,7 +35,7 @@ export function TouchControls({
         lastX.current = currentX;
         lastY.current = currentY;
 
-        const sensitivity = 0.12;
+        const sensitivity = 0.06;
 
         onMove(
           Math.max(-1, Math.min(1, deltaX * sensitivity)),
