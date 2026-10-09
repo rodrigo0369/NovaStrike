@@ -7,87 +7,99 @@ import { StarField } from "../world/StarField";
 import { Player } from "../player/Player";
 import { PlayerController } from "../player/PlayerController";
 import { TouchControls } from "../ui/TouchControls";
+import { ProjectileManager } from "../combat/ProjectileManager";
+import { PlayerWeapon } from "../combat/PlayerWeapon";
+import { ProjectileRenderer } from "../combat/ProjectileRenderer";
+import type { Projectile } from "../combat/Projectile";
 
 export function GameScreen() {
   const controller = useRef(new PlayerController()).current;
+  const projectileManager = useRef(new ProjectileManager()).current;
+  const playerWeapon = useRef(new PlayerWeapon()).current;
 
-    const direction = useRef({
-        x: 0,
-            y: 0,
-              });
+  const [playerPosition, setPlayerPosition] = useState(
+    controller.getPosition()
+  );
+  const [projectiles, setProjectiles] = useState<Projectile[]>([]);
 
-                const [playerPosition, setPlayerPosition] = useState(
-                    controller.getPosition()
-                      );
+  useEffect(() => {
+    let animationFrame = 0;
+    let lastTime = performance.now();
 
-                        useEffect(() => {
-                            let animationFrame: number;
-                                let lastTime = performance.now();
+    const update = (currentTime: number) => {
+      const deltaTime = Math.min(
+        (currentTime - lastTime) / 1000,
+        0.05
+      );
+      lastTime = currentTime;
 
-                                    const update = (currentTime: number) => {
-                                          const deltaTime = Math.min(
-                                                  (currentTime - lastTime) / 1000,
-                                                          0.05
-                                                                );
+      controller.update(deltaTime);
 
-                                                                      lastTime = currentTime;
+      const position = controller.getPosition();
 
-                                                                            controller.move(
-                                                                                    direction.current.x,
-                                                                                            direction.current.y,
-                                                                                                    deltaTime
-                                                                                                          );
+      playerWeapon.update(
+        deltaTime,
+        position.x,
+        position.y,
+        projectileManager
+      );
 
-                                                                                                                setPlayerPosition(controller.getPosition());
+      projectileManager.update(deltaTime);
 
-                                                                                                                      animationFrame = requestAnimationFrame(update);
-                                                                                                                          };
+      setPlayerPosition(position);
+      setProjectiles(projectileManager.getProjectiles());
 
-                                                                                                                              animationFrame = requestAnimationFrame(update);
+      animationFrame = requestAnimationFrame(update);
+    };
 
-                                                                                                                                  return () => {
-                                                                                                                                        cancelAnimationFrame(animationFrame);
-                                                                                                                                            };
-                                                                                                                                              }, [controller]);
+    animationFrame = requestAnimationFrame(update);
 
-                                                                                                                                                return (
-                                                                                                                                                    <View style={styles.container}>
-                                                                                                                                                          <Canvas
-                                                                                                                                                                  style={{
-                                                                                                                                                                            width: GAME_WIDTH,
-                                                                                                                                                                                      height: GAME_HEIGHT,
-                                                                                                                                                                                                backgroundColor: "#02030F",
-                                                                                                                                                                                                        }}
-                                                                                                                                                                                                              >
-                                                                                                                                                                                                                      <Rect
-                                                                                                                                                                                                                                x={0}
-                                                                                                                                                                                                                                          y={0}
-                                                                                                                                                                                                                                                    width={GAME_WIDTH}
-                                                                                                                                                                                                                                                              height={GAME_HEIGHT}
-                                                                                                                                                                                                                                                                        color="#02030F"
-                                                                                                                                                                                                                                                                                />
+    return () => {
+      cancelAnimationFrame(animationFrame);
+    };
+  }, [controller, playerWeapon, projectileManager]);
 
-                                                                                                                                                                                                                                                                                        <StarField />
+  return (
+    <View style={styles.container}>
+      <Canvas
+        style={{
+          width: GAME_WIDTH,
+          height: GAME_HEIGHT,
+          backgroundColor: "#02030F",
+        }}
+      >
+        <Rect
+          x={0}
+          y={0}
+          width={GAME_WIDTH}
+          height={GAME_HEIGHT}
+          color="#02030F"
+        />
 
-                                                                                                                                                                                                                                                                                                <Player
-                                                                                                                                                                                                                                                                                                          x={playerPosition.x}
-                                                                                                                                                                                                                                                                                                                    y={playerPosition.y}
-                                                                                                                                                                                                                                                                                                                            />
-                                                                                                                                                                                                                                                                                                                                  </Canvas>
+        <StarField />
 
-                                                                                                                                                                                                                                                                                                                                        <TouchControls
-                                                                                                                                                                                                                                                                                                                                                onMove={(dx, dy) => {
-                                                                                                                                                                                                                                                                                                                                                          direction.current.x = dx;
-                                                                                                                                                                                                                                                                                                                                                                    direction.current.y = dy;
-                                                                                                                                                                                                                                                                                                                                                                            }}
-                                                                                                                                                                                                                                                                                                                                                                                  />
-                                                                                                                                                                                                                                                                                                                                                                                      </View>
-                                                                                                                                                                                                                                                                                                                                                                                        );
-                                                                                                                                                                                                                                                                                                                                                                                        }
+        <ProjectileRenderer projectiles={projectiles} />
 
-                                                                                                                                                                                                                                                                                                                                                                                        const styles = StyleSheet.create({
-                                                                                                                                                                                                                                                                                                                                                                                          container: {
-                                                                                                                                                                                                                                                                                                                                                                                              flex: 1,
-                                                                                                                                                                                                                                                                                                                                                                                                  backgroundColor: "#02030F",
-                                                                                                                                                                                                                                                                                                                                                                                                    },
-                                                                                                                                                                                                                                                                                                                                                                                                    });
+        <Player
+          x={playerPosition.x}
+          y={playerPosition.y}
+        />
+      </Canvas>
+
+      <TouchControls
+        onMove={(dx, dy) => {
+          controller.setDirection(dx, dy);
+        }}
+      />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#02030F",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+});
