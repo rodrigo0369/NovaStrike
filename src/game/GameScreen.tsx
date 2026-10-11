@@ -7,20 +7,27 @@ import { StarField } from "../world/StarField";
 import { Player } from "../player/Player";
 import { PlayerController } from "../player/PlayerController";
 import { TouchControls } from "../ui/TouchControls";
+
 import { ProjectileManager } from "../combat/ProjectileManager";
 import { PlayerWeapon } from "../combat/PlayerWeapon";
 import { ProjectileRenderer } from "../combat/ProjectileRenderer";
 import type { Projectile } from "../combat/Projectile";
 
+import { EnemyManager } from "../enemies/EnemyManager";
+import { EnemyRenderer } from "../enemies/EnemyRenderer";
+import type { Enemy } from "../enemies/Enemy";
+
 export function GameScreen() {
   const controller = useRef(new PlayerController()).current;
   const projectileManager = useRef(new ProjectileManager()).current;
   const playerWeapon = useRef(new PlayerWeapon()).current;
+  const enemyManager = useRef(new EnemyManager()).current;
 
   const [playerPosition, setPlayerPosition] = useState(
     controller.getPosition()
   );
   const [projectiles, setProjectiles] = useState<Projectile[]>([]);
+  const [enemies, setEnemies] = useState<Enemy[]>([]);
 
   useEffect(() => {
     let animationFrame = 0;
@@ -45,9 +52,33 @@ export function GameScreen() {
       );
 
       projectileManager.update(deltaTime);
+      enemyManager.update(deltaTime);
+
+      const currentProjectiles = projectileManager.getProjectiles();
+      const currentEnemies = enemyManager.getEnemies();
+
+      for (const projectile of currentProjectiles) {
+        if (projectile.owner !== "player") continue;
+
+        for (const enemy of currentEnemies) {
+          const hitX =
+            Math.abs(projectile.x - enemy.x) <=
+            enemy.width / 2 + projectile.radius;
+          const hitY =
+            Math.abs(projectile.y - enemy.y) <=
+            enemy.height / 2 + projectile.radius;
+
+          if (hitX && hitY) {
+            enemyManager.damageEnemy(enemy.id, projectile.damage);
+            projectileManager.removeProjectile(projectile.id);
+            break;
+          }
+        }
+      }
 
       setPlayerPosition(position);
       setProjectiles(projectileManager.getProjectiles());
+      setEnemies(enemyManager.getEnemies());
 
       animationFrame = requestAnimationFrame(update);
     };
@@ -57,7 +88,7 @@ export function GameScreen() {
     return () => {
       cancelAnimationFrame(animationFrame);
     };
-  }, [controller, playerWeapon, projectileManager]);
+  }, [controller, playerWeapon, projectileManager, enemyManager]);
 
   return (
     <View style={styles.container}>
@@ -77,13 +108,10 @@ export function GameScreen() {
         />
 
         <StarField />
-
+        <EnemyRenderer enemies={enemies} />
         <ProjectileRenderer projectiles={projectiles} />
 
-        <Player
-          x={playerPosition.x}
-          y={playerPosition.y}
-        />
+        <Player x={playerPosition.x} y={playerPosition.y} />
       </Canvas>
 
       <TouchControls

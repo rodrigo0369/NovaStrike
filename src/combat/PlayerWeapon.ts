@@ -30,7 +30,7 @@ export class PlayerWeapon {
       y: playerY - 30,
       velocityX: 0,
       velocityY: -PLAYER_PROJECTILE_SPEED,
-      damage: 10,
+      damage: 1,
       radius: 4,
       owner: "player",
     });

@@ -1,8 +1,4 @@
-import {
-  GAME_WIDTH,
-  GAME_HEIGHT,
-} from "../game/GameConfig";
-
+import { GAME_WIDTH, GAME_HEIGHT } from "../game/GameConfig";
 import {
   createProjectile,
   type Projectile,
@@ -18,9 +14,7 @@ export class ProjectileManager {
 
   update(deltaTime: number): void {
     for (const projectile of this.projectiles) {
-      if (!projectile.active) {
-        continue;
-      }
+      if (!projectile.active) continue;
 
       projectile.x += projectile.velocityX * deltaTime;
       projectile.y += projectile.velocityY * deltaTime;
@@ -41,9 +35,13 @@ export class ProjectileManager {
   }
 
   getProjectiles(): Projectile[] {
-    return this.projectiles.map((projectile) => ({
-      ...projectile,
-    }));
+    return this.projectiles.map((projectile) => ({ ...projectile }));
+  }
+
+  removeProjectile(projectileId: number): void {
+    this.projectiles = this.projectiles.filter(
+      (projectile) => projectile.id !== projectileId
+    );
   }
 
   clear(): void {
