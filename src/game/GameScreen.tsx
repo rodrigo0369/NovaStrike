@@ -5,6 +5,7 @@ import { Canvas, Rect } from "@shopify/react-native-skia";
 import {
   GAME_WIDTH,
   GAME_HEIGHT,
+  PLAYER,
   PROGRESSION,
 } from "./GameConfig";
 
@@ -34,6 +35,10 @@ export function GameScreen() {
   const [projectiles, setProjectiles] = useState<Projectile[]>([]);
   const [enemies, setEnemies] = useState<Enemy[]>([]);
   const [score, setScore] = useState(0);
+  const [lives, setLives] = useState(PLAYER.startLives);
+
+  const livesRef = useRef(PLAYER.startLives);
+  const invulnerableUntil = useRef(0);
 
   const level =
     Math.floor(score / PROGRESSION.pointsPerLevel) + 1;
@@ -47,7 +52,6 @@ export function GameScreen() {
         (currentTime - lastTime) / 1000,
         0.05
       );
-
       lastTime = currentTime;
 
       controller.update(deltaTime);
@@ -68,6 +72,7 @@ export function GameScreen() {
         projectileManager.getProjectiles();
       const currentEnemies = enemyManager.getEnemies();
 
+      // Los disparos dañan a los escorpiones.
       for (const projectile of currentProjectiles) {
         if (projectile.owner !== "player") continue;
 
@@ -91,6 +96,34 @@ export function GameScreen() {
             }
 
             projectileManager.removeProjectile(projectile.id);
+            break;
+          }
+        }
+      }
+
+      // Detectar choque entre la nave y un escorpión.
+      if (
+        livesRef.current > 0 &&
+        currentTime >= invulnerableUntil.current
+      ) {
+        for (const enemy of enemyManager.getEnemies()) {
+          const hitX =
+            Math.abs(position.x - enemy.x) <=
+            (PLAYER.width + enemy.width) / 2;
+
+          const hitY =
+            Math.abs(position.y - enemy.y) <=
+            (PLAYER.height + enemy.height) / 2;
+
+          if (hitX && hitY) {
+            // Eliminar al escorpión sin otorgar puntos.
+            enemyManager.damageEnemy(enemy.id, enemy.health);
+
+            // Perder una sola vida y activar protección temporal.
+            livesRef.current = Math.max(0, livesRef.current - 1);
+            setLives(livesRef.current);
+            invulnerableUntil.current = currentTime + 1500;
+
             break;
           }
         }
@@ -140,7 +173,19 @@ export function GameScreen() {
       <View style={styles.hud}>
         <Text style={styles.hudText}>PUNTOS: {score}</Text>
         <Text style={styles.hudText}>NIVEL: {level}</Text>
+        <Text style={styles.hudText}>
+          VIDAS: {"♥ ".repeat(lives)}{"♡ ".repeat(PLAYER.startLives - lives)}
+        </Text>
       </View>
+
+      {lives === 0 && (
+        <View style={styles.gameOver}>
+          <Text style={styles.gameOverTitle}>GAME OVER</Text>
+          <Text style={styles.gameOverText}>
+            PUNTOS FINALES: {score}
+          </Text>
+        </View>
+      )}
 
       <TouchControls
         onMove={(dx, dy) => {
@@ -164,7 +209,7 @@ const styles = StyleSheet.create({
     left: 18,
     paddingVertical: 10,
     paddingHorizontal: 14,
-    backgroundColor: "rgba(5, 12, 35, 0.82)",
+    backgroundColor: "rgba(5, 12, 35, 0.88)",
     borderRadius: 10,
     borderWidth: 1,
     borderColor: "#38BDF8",
@@ -174,5 +219,26 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     marginVertical: 2,
+  },
+  gameOver: {
+    position: "absolute",
+    alignSelf: "center",
+    top: "40%",
+    padding: 24,
+    borderRadius: 14,
+    borderWidth: 2,
+    borderColor: "#F43F5E",
+    backgroundColor: "rgba(5, 12, 35, 0.95)",
+    alignItems: "center",
+  },
+  gameOverTitle: {
+    color: "#F43F5E",
+    fontSize: 30,
+    fontWeight: "bold",
+  },
+  gameOverText: {
+    color: "#FFFFFF",
+    fontSize: 18,
+    marginTop: 10,
   },
 });
