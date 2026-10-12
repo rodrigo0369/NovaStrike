@@ -1,8 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
-import { View, StyleSheet } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import { Canvas, Rect } from "@shopify/react-native-skia";
 
-import { GAME_WIDTH, GAME_HEIGHT } from "./GameConfig";
+import {
+  GAME_WIDTH,
+  GAME_HEIGHT,
+  PROGRESSION,
+} from "./GameConfig";
+
 import { StarField } from "../world/StarField";
 import { Player } from "../player/Player";
 import { PlayerController } from "../player/PlayerController";
@@ -28,6 +33,10 @@ export function GameScreen() {
   );
   const [projectiles, setProjectiles] = useState<Projectile[]>([]);
   const [enemies, setEnemies] = useState<Enemy[]>([]);
+  const [score, setScore] = useState(0);
+
+  const level =
+    Math.floor(score / PROGRESSION.pointsPerLevel) + 1;
 
   useEffect(() => {
     let animationFrame = 0;
@@ -38,6 +47,7 @@ export function GameScreen() {
         (currentTime - lastTime) / 1000,
         0.05
       );
+
       lastTime = currentTime;
 
       controller.update(deltaTime);
@@ -54,7 +64,8 @@ export function GameScreen() {
       projectileManager.update(deltaTime);
       enemyManager.update(deltaTime);
 
-      const currentProjectiles = projectileManager.getProjectiles();
+      const currentProjectiles =
+        projectileManager.getProjectiles();
       const currentEnemies = enemyManager.getEnemies();
 
       for (const projectile of currentProjectiles) {
@@ -64,12 +75,21 @@ export function GameScreen() {
           const hitX =
             Math.abs(projectile.x - enemy.x) <=
             enemy.width / 2 + projectile.radius;
+
           const hitY =
             Math.abs(projectile.y - enemy.y) <=
             enemy.height / 2 + projectile.radius;
 
           if (hitX && hitY) {
-            enemyManager.damageEnemy(enemy.id, projectile.damage);
+            const pointsEarned = enemyManager.damageEnemy(
+              enemy.id,
+              projectile.damage
+            );
+
+            if (pointsEarned > 0) {
+              setScore((currentScore) => currentScore + pointsEarned);
+            }
+
             projectileManager.removeProjectile(projectile.id);
             break;
           }
@@ -111,8 +131,16 @@ export function GameScreen() {
         <EnemyRenderer enemies={enemies} />
         <ProjectileRenderer projectiles={projectiles} />
 
-        <Player x={playerPosition.x} y={playerPosition.y} />
+        <Player
+          x={playerPosition.x}
+          y={playerPosition.y}
+        />
       </Canvas>
+
+      <View style={styles.hud}>
+        <Text style={styles.hudText}>PUNTOS: {score}</Text>
+        <Text style={styles.hudText}>NIVEL: {level}</Text>
+      </View>
 
       <TouchControls
         onMove={(dx, dy) => {
@@ -129,5 +157,22 @@ const styles = StyleSheet.create({
     backgroundColor: "#02030F",
     alignItems: "center",
     justifyContent: "center",
+  },
+  hud: {
+    position: "absolute",
+    top: 18,
+    left: 18,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    backgroundColor: "rgba(5, 12, 35, 0.82)",
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#38BDF8",
+  },
+  hudText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "bold",
+    marginVertical: 2,
   },
 });
