@@ -23,7 +23,15 @@ import { EnemyManager } from "../enemies/EnemyManager";
 import { EnemyRenderer } from "../enemies/EnemyRenderer";
 import type { Enemy } from "../enemies/Enemy";
 
-export function GameScreen() {
+type GameScreenProps = {
+  onMainMenu: () => void;
+  onScoreChange: (score: number) => void;
+};
+
+export function GameScreen({
+  onMainMenu,
+  onScoreChange,
+}: GameScreenProps) {
   const controller = useRef(new PlayerController()).current;
   const projectileManager = useRef(new ProjectileManager()).current;
   const playerWeapon = useRef(new PlayerWeapon()).current;
@@ -42,6 +50,10 @@ export function GameScreen() {
 
   const level =
     Math.floor(score / PROGRESSION.pointsPerLevel) + 1;
+
+  useEffect(() => {
+    onScoreChange(score);
+  }, [score, onScoreChange]);
 
   useEffect(() => {
     let animationFrame = 0;
@@ -184,14 +196,22 @@ export function GameScreen() {
           <Text style={styles.gameOverText}>
             PUNTOS FINALES: {score}
           </Text>
+          <Text
+            style={styles.menuButton}
+            onPress={onMainMenu}
+          >
+            VOLVER AL MENÚ
+          </Text>
         </View>
       )}
 
-      <TouchControls
-        onMove={(dx, dy) => {
-          controller.setDirection(dx, dy);
-        }}
-      />
+      {lives > 0 && (
+        <TouchControls
+          onMove={(dx, dy) => {
+            controller.setDirection(dx, dy);
+          }}
+        />
+      )}
     </View>
   );
 }
@@ -240,5 +260,12 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 18,
     marginTop: 10,
+  },
+  menuButton: {
+    color: "#67E8F9",
+    fontSize: 16,
+    fontWeight: "bold",
+    marginTop: 22,
+    paddingVertical: 10,
   },
 });
