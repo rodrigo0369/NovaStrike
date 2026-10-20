@@ -12,9 +12,13 @@ type Props = {
   bestScore: number;
   coins: number;
   onPlay: () => void;
+  unlockedShips: string[];
+  selectedShip: string;
+  onBuyShip: (shipId: string, price: number) => void;
+  onSelectShip: (shipId: string) => void;
 };
 
-export function MenuScreen({ bestScore, coins, onPlay }: Props) {
+export function MenuScreen({ bestScore, coins, onPlay, unlockedShips, selectedShip, onBuyShip, onSelectShip }: Props) {
   const [section, setSection] = useState("home");
 
   const button = (
@@ -91,24 +95,37 @@ export function MenuScreen({ bestScore, coins, onPlay }: Props) {
       {section === "shop" && (
         <View style={styles.panel}>
           <Text style={styles.panelTitle}>TIENDA GALÁCTICA</Text>
-          <Text style={styles.panelText}>
-            Tus monedas: {coins}
-          </Text>
-          <Text style={styles.panelText}>
-            🚀 Naves especiales — próximamente
-          </Text>
-          <Text style={styles.panelText}>
-            ⚡ Armas mejoradas — próximamente
-          </Text>
-          <Text style={styles.panelText}>
-            🛡️ Escudos y mejoras — próximamente
-          </Text>
-          <Text style={styles.note}>
-            Primero construiremos el sistema de monedas y compras.
-          </Text>
-          {button("VOLVER", "Regresar al menú", () =>
-            setSection("home")
-          )}
+          <Text style={styles.panelText}>🪙 SALDO: {coins} monedas</Text>
+          <View style={styles.shipCard}>
+            <Text style={[styles.shipPreview, { color: "#22D3EE" }]}>▲</Text>
+            <Text style={styles.shipName}>NOVA</Text>
+            <Text style={styles.panelText}>Nave equilibrada • Gratis</Text>
+            {button(selectedShip === "nova" ? "✓ EQUIPADA" : "EQUIPAR", "Nave inicial", () => onSelectShip("nova"), "#075985")}
+          </View>
+          <View style={styles.shipCard}>
+            <Text style={[styles.shipPreview, { color: "#38BDF8" }]}>◆</Text>
+            <Text style={styles.shipName}>PHANTOM</Text>
+            <Text style={styles.panelText}>Diseño azul • 50 monedas</Text>
+            {button(
+              selectedShip === "phantom" ? "✓ EQUIPADA" : unlockedShips.includes("phantom") ? "EQUIPAR" : "🪙 COMPRAR · 50",
+              unlockedShips.includes("phantom") ? "Ya es tuya" : "Desbloqueá esta nave",
+              () => unlockedShips.includes("phantom") ? onSelectShip("phantom") : onBuyShip("phantom", 50),
+              "#164E63"
+            )}
+          </View>
+          <View style={styles.shipCard}>
+            <Text style={[styles.shipPreview, { color: "#C084FC" }]}>✦</Text>
+            <Text style={styles.shipName}>NEBULA</Text>
+            <Text style={styles.panelText}>Diseño violeta • 100 monedas</Text>
+            {button(
+              selectedShip === "nebula" ? "✓ EQUIPADA" : unlockedShips.includes("nebula") ? "EQUIPAR" : "🪙 COMPRAR · 100",
+              unlockedShips.includes("nebula") ? "Ya es tuya" : "Desbloqueá esta nave",
+              () => unlockedShips.includes("nebula") ? onSelectShip("nebula") : onBuyShip("nebula", 100),
+              "#4C1D95"
+            )}
+          </View>
+          <Text style={styles.note}>Las naves compradas se guardan en este dispositivo.</Text>
+          {button("VOLVER", "Regresar al menú", () => setSection("home"))}
         </View>
       )}
 
@@ -241,6 +258,9 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   panelText: { color: "#FFFFFF", fontSize: 14, marginVertical: 8 },
+  shipCard: { backgroundColor: "#101A30", borderWidth: 1, borderColor: "#243B55", borderRadius: 12, padding: 12, marginVertical: 7 },
+  shipPreview: { fontSize: 42, textAlign: "center" },
+  shipName: { color: "#FFFFFF", fontSize: 17, fontWeight: "bold", textAlign: "center", marginTop: 4 },
   note: { color: "#94A3B8", fontSize: 12, marginVertical: 12 },
   footer: {
     color: "#475569",

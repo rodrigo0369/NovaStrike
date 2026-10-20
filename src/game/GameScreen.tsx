@@ -26,11 +26,15 @@ import type { Enemy } from "../enemies/Enemy";
 type GameScreenProps = {
   onMainMenu: () => void;
   onScoreChange: (score: number) => void;
+  onCoinsEarned: (amount: number) => void;
+  selectedShip: string;
 };
 
 export function GameScreen({
   onMainMenu,
   onScoreChange,
+  onCoinsEarned,
+  selectedShip,
 }: GameScreenProps) {
   const controller = useRef(new PlayerController()).current;
   const projectileManager = useRef(new ProjectileManager()).current;
@@ -78,7 +82,12 @@ export function GameScreen({
       );
 
       projectileManager.update(deltaTime);
-      enemyManager.update(deltaTime);
+      enemyManager.update(
+        deltaTime,
+        projectileManager,
+        position.x,
+        position.y
+      );
 
       const currentProjectiles =
         projectileManager.getProjectiles();
@@ -105,6 +114,7 @@ export function GameScreen({
 
             if (pointsEarned > 0) {
               setScore((currentScore) => currentScore + pointsEarned);
+              onCoinsEarned(enemy.coins);
             }
 
             projectileManager.removeProjectile(projectile.id);
@@ -113,7 +123,36 @@ export function GameScreen({
         }
       }
 
-      // Detectar choque entre la nave y un escorpión.
+      // Los proyectiles enemigos pueden golpear a la nave.
+      for (const projectile of currentProjectiles) {
+        if (projectile.owner !== "enemy") continue;
+
+        // Un solo impacto puede quitar como máximo una vida.
+        if (
+          livesRef.current <= 0 ||
+          currentTime < invulnerableUntil.current
+        ) {
+          break;
+        }
+
+        const hitX =
+          Math.abs(position.x - projectile.x) <=
+          PLAYER.width / 2 + projectile.radius;
+
+        const hitY =
+          Math.abs(position.y - projectile.y) <=
+          PLAYER.height / 2 + projectile.radius;
+
+        if (hitX && hitY) {
+          projectileManager.removeProjectile(projectile.id);
+          livesRef.current = Math.max(0, livesRef.current - 1);
+          setLives(livesRef.current);
+          invulnerableUntil.current = currentTime + 1500;
+          break;
+        }
+      }
+
+      // Detectar choque entre la nave y un enemigo.
       if (
         livesRef.current > 0 &&
         currentTime >= invulnerableUntil.current
@@ -179,6 +218,7 @@ export function GameScreen({
         <Player
           x={playerPosition.x}
           y={playerPosition.y}
+          shipId={selectedShip}
         />
       </Canvas>
 
