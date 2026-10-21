@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Pressable, Alert } from "react-native";
 import { Canvas, Rect } from "@shopify/react-native-skia";
 
 import {
@@ -48,6 +48,8 @@ export function GameScreen({
   const [enemies, setEnemies] = useState<Enemy[]>([]);
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(PLAYER.startLives);
+  const [paused, setPaused] = useState(false);
+  const [showStats, setShowStats] = useState(false);
 
   const livesRef = useRef(PLAYER.startLives);
   const invulnerableUntil = useRef(0);
@@ -60,6 +62,7 @@ export function GameScreen({
   }, [score, onScoreChange]);
 
   useEffect(() => {
+    if (paused || lives === 0) return;
     let animationFrame = 0;
     let lastTime = performance.now();
 
@@ -193,7 +196,7 @@ export function GameScreen({
     return () => {
       cancelAnimationFrame(animationFrame);
     };
-  }, [controller, playerWeapon, projectileManager, enemyManager]);
+  }, [controller, playerWeapon, projectileManager, enemyManager, paused, lives]);
 
   return (
     <View style={styles.container}>
@@ -231,6 +234,95 @@ export function GameScreen({
         </Text>
       </View>
 
+      {lives > 0 && (
+        <Pressable
+          style={styles.pauseButton}
+          onPress={() => {
+            setShowStats(false);
+            setPaused(true);
+          }}
+        >
+          <Text style={styles.pauseButtonText}>Ⅱ</Text>
+        </Pressable>
+      )}
+
+      {paused && lives > 0 && (
+        <View style={styles.pauseOverlay}>
+          <View style={styles.pausePanel}>
+            <Text style={styles.pauseTitle}>
+              {showStats ? "ESTADÍSTICAS" : "EN PAUSA"}
+            </Text>
+
+            {showStats && (
+              <View style={styles.statsBox}>
+                <Text style={styles.pauseInfo}>Puntos: {score}</Text>
+                <Text style={styles.pauseInfo}>Récord: {score}</Text>
+                <Text style={styles.pauseInfo}>Nivel: {level}</Text>
+                <Text style={styles.pauseInfo}>Vidas restantes: {lives}</Text>
+              </View>
+            )}
+
+            {showStats ? (
+              <Pressable
+                style={styles.pauseOption}
+                onPress={() => setShowStats(false)}
+              >
+                <Text style={styles.pauseOptionText}>VOLVER</Text>
+              </Pressable>
+            ) : (
+              <>
+                <Pressable
+                  style={styles.pauseOptionPrimary}
+                  onPress={() => setPaused(false)}
+                >
+                  <Text style={styles.pauseOptionText}>▶  CONTINUAR</Text>
+                </Pressable>
+
+                <Pressable
+                  style={styles.pauseOption}
+                  onPress={() =>
+                    Alert.alert(
+                      "AJUSTES",
+                      "Próximamente podrás configurar el sonido y otras opciones.",
+                      [{ text: "ACEPTAR" }]
+                    )
+                  }
+                >
+                  <Text style={styles.pauseOptionText}>⚙  AJUSTES</Text>
+                </Pressable>
+
+                <Pressable
+                  style={styles.pauseOption}
+                  onPress={() => setShowStats(true)}
+                >
+                  <Text style={styles.pauseOptionText}>▥  ESTADÍSTICAS</Text>
+                </Pressable>
+
+                <Pressable
+                  style={styles.pauseOption}
+                  onPress={() =>
+                    Alert.alert(
+                      "VOLVER AL MENÚ",
+                      "¿Querés abandonar esta partida?",
+                      [
+                        { text: "CANCELAR", style: "cancel" },
+                        {
+                          text: "SALIR",
+                          style: "destructive",
+                          onPress: onMainMenu,
+                        },
+                      ]
+                    )
+                  }
+                >
+                  <Text style={styles.pauseOptionText}>⌂  MENÚ PRINCIPAL</Text>
+                </Pressable>
+              </>
+            )}
+          </View>
+        </View>
+      )}
+
       {lives === 0 && (
         <View style={styles.gameOver}>
           <Text style={styles.gameOverTitle}>GAME OVER</Text>
@@ -266,7 +358,7 @@ const styles = StyleSheet.create({
   },
   hud: {
     position: "absolute",
-    top: 18,
+    top: 55,
     left: 18,
     paddingVertical: 10,
     paddingHorizontal: 14,
@@ -280,6 +372,88 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     marginVertical: 2,
+  },
+  pauseButton: {
+    position: "absolute",
+    top: 55,
+    right: 18,
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: "#22D3EE",
+    backgroundColor: "rgba(5, 12, 35, 0.95)",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 5,
+  },
+  pauseButtonText: {
+    color: "#67E8F9",
+    fontSize: 25,
+    fontWeight: "bold",
+  },
+  pauseOverlay: {
+    ...StyleSheet.absoluteFill,
+    zIndex: 10,
+    backgroundColor: "rgba(0, 3, 18, 0.82)",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 24,
+  },
+  pausePanel: {
+    width: "100%",
+    maxWidth: 340,
+    padding: 22,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: "#22D3EE",
+    backgroundColor: "#06152B",
+    alignItems: "stretch",
+  },
+  pauseTitle: {
+    color: "#67E8F9",
+    fontSize: 27,
+    fontWeight: "900",
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  pauseOption: {
+    minHeight: 50,
+    borderWidth: 1,
+    borderColor: "#0EA5E9",
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 8,
+    marginTop: 10,
+    backgroundColor: "#0A2340",
+  },
+  pauseOptionPrimary: {
+    minHeight: 54,
+    borderWidth: 2,
+    borderColor: "#67E8F9",
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 8,
+    backgroundColor: "#075985",
+  },
+  pauseOptionText: {
+    color: "#FFFFFF",
+    fontSize: 15,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  statsBox: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    backgroundColor: "#0A2340",
+  },
+  pauseInfo: {
+    color: "#FFFFFF",
+    fontSize: 17,
+    marginVertical: 5,
   },
   gameOver: {
     position: "absolute",

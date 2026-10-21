@@ -4,6 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { GameScreen } from "./src/game/GameScreen";
 import { MenuScreen } from "./src/menu/MenuScreen";
+import { LoadingScreen } from "./src/loading/LoadingScreen";
 
 const BEST_SCORE_KEY = "novastrike_best_score";
 const COINS_KEY = "novastrike_coins";
@@ -18,6 +19,7 @@ export default function App() {
   const [selectedShip, setSelectedShip] = useState("nova");
   const [gameKey, setGameKey] = useState(0);
   const [ready, setReady] = useState(false);
+  const [showLoading, setShowLoading] = useState(true);
 
   useEffect(() => {
     async function loadSavedData() {
@@ -111,6 +113,12 @@ export default function App() {
       <View style={styles.loading}>
         <ActivityIndicator size="large" color="#22D3EE" />
       </View>
+    );
+  }
+
+  if (showLoading) {
+    return (
+      <LoadingScreen onFinish={() => setShowLoading(false)} />
     );
   }
 
