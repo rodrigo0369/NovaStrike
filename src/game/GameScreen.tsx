@@ -86,7 +86,8 @@ export function GameScreen({
         deltaTime,
         projectileManager,
         position.x,
-        position.y
+        position.y,
+        level
       );
 
       const currentProjectiles =
