@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import {
   View,
@@ -11,6 +12,7 @@ import {
 type Props = {
   bestScore: number;
   coins: number;
+  diamonds: number;
   onPlay: () => void;
   unlockedShips: string[];
   selectedShip: string;
@@ -18,7 +20,16 @@ type Props = {
   onSelectShip: (shipId: string) => void;
 };
 
-export function MenuScreen({ bestScore, coins, onPlay, unlockedShips, selectedShip, onBuyShip, onSelectShip }: Props) {
+export function MenuScreen({
+  bestScore,
+  coins,
+  diamonds,
+  onPlay,
+  unlockedShips,
+  selectedShip,
+  onBuyShip,
+  onSelectShip,
+}: Props) {
   const [section, setSection] = useState("home");
 
   const button = (
@@ -44,10 +55,14 @@ export function MenuScreen({ bestScore, coins, onPlay, unlockedShips, selectedSh
       style={styles.screen}
     >
       <Text style={styles.eyebrow}>SPACE COMBAT • MOBILE</Text>
+
       <Text style={styles.logo}>
         NOVA<Text style={styles.logoAccent}>STRIKE</Text>
       </Text>
-      <Text style={styles.tagline}>LA GALAXIA TE ESTÁ ESPERANDO</Text>
+
+      <Text style={styles.tagline}>
+        LA GALAXIA TE ESTÁ ESPERANDO
+      </Text>
 
       <View style={styles.hero}>
         <Text style={styles.ship}>✦</Text>
@@ -59,9 +74,15 @@ export function MenuScreen({ bestScore, coins, onPlay, unlockedShips, selectedSh
 
       {section === "home" && (
         <>
-          {button("▶  JUGAR", "Comenzar una nueva partida", onPlay, "#075985")}
           {button(
-            "Ⅱ  CONTINUAR",
+            "▶ JUGAR",
+            "Comenzar una nueva partida",
+            onPlay,
+            "#075985"
+          )}
+
+          {button(
+            "Ⅱ CONTINUAR",
             "Retomar una partida guardada",
             () =>
               Alert.alert(
@@ -76,6 +97,13 @@ export function MenuScreen({ bestScore, coins, onPlay, unlockedShips, selectedSh
               <Text style={styles.statLabel}>MONEDAS</Text>
               <Text style={styles.statValue}>{coins}</Text>
             </View>
+
+            <View style={styles.statCard}>
+              <Text style={styles.statIcon}>💎</Text>
+              <Text style={styles.statLabel}>DIAMANTES</Text>
+              <Text style={styles.diamondValue}>{diamonds}</Text>
+            </View>
+
             <View style={styles.statCard}>
               <Text style={styles.statIcon}>🏆</Text>
               <Text style={styles.statLabel}>RÉCORD</Text>
@@ -83,11 +111,16 @@ export function MenuScreen({ bestScore, coins, onPlay, unlockedShips, selectedSh
             </View>
           </View>
 
-          {button("🛒  TIENDA", "Naves, armas y mejoras", () =>
-            setSection("shop")
+          {button(
+            "🛒 TIENDA",
+            "Naves, armas y mejoras",
+            () => setSection("shop")
           )}
-          {button("⚙  AJUSTES", "Opciones de juego", () =>
-            setSection("settings")
+
+          {button(
+            "⚙ AJUSTES",
+            "Opciones de juego",
+            () => setSection("settings")
           )}
         </>
       )}
@@ -95,61 +128,132 @@ export function MenuScreen({ bestScore, coins, onPlay, unlockedShips, selectedSh
       {section === "shop" && (
         <View style={styles.panel}>
           <Text style={styles.panelTitle}>TIENDA GALÁCTICA</Text>
-          <Text style={styles.panelText}>🪙 SALDO: {coins} monedas</Text>
+
+          <Text style={styles.panelText}>
+            🪙 SALDO: {coins} monedas
+          </Text>
+
+          <Text style={styles.panelText}>
+            💎 DIAMANTES: {diamonds}
+          </Text>
+
           <View style={styles.shipCard}>
-            <Text style={[styles.shipPreview, { color: "#22D3EE" }]}>▲</Text>
+            <Text style={[styles.shipPreview, { color: "#22D3EE" }]}>
+              ▲
+            </Text>
             <Text style={styles.shipName}>NOVA</Text>
-            <Text style={styles.panelText}>Nave equilibrada • Gratis</Text>
-            {button(selectedShip === "nova" ? "✓ EQUIPADA" : "EQUIPAR", "Nave inicial", () => onSelectShip("nova"), "#075985")}
-          </View>
-          <View style={styles.shipCard}>
-            <Text style={[styles.shipPreview, { color: "#38BDF8" }]}>◆</Text>
-            <Text style={styles.shipName}>PHANTOM</Text>
-            <Text style={styles.panelText}>Diseño azul • 50 monedas</Text>
+            <Text style={styles.panelText}>
+              Nave equilibrada • Gratis
+            </Text>
+
             {button(
-              selectedShip === "phantom" ? "✓ EQUIPADA" : unlockedShips.includes("phantom") ? "EQUIPAR" : "🪙 COMPRAR · 50",
-              unlockedShips.includes("phantom") ? "Ya es tuya" : "Desbloqueá esta nave",
-              () => unlockedShips.includes("phantom") ? onSelectShip("phantom") : onBuyShip("phantom", 50),
+              selectedShip === "nova" ? "✓ EQUIPADA" : "EQUIPAR",
+              "Nave inicial",
+              () => onSelectShip("nova"),
+              "#075985"
+            )}
+          </View>
+
+          <View style={styles.shipCard}>
+            <Text style={[styles.shipPreview, { color: "#38BDF8" }]}>
+              ◆
+            </Text>
+            <Text style={styles.shipName}>PHANTOM</Text>
+            <Text style={styles.panelText}>
+              Diseño azul • 50 monedas
+            </Text>
+
+            {button(
+              selectedShip === "phantom"
+                ? "✓ EQUIPADA"
+                : unlockedShips.includes("phantom")
+                  ? "EQUIPAR"
+                  : "🪙 COMPRAR · 50",
+              unlockedShips.includes("phantom")
+                ? "Ya es tuya"
+                : "Desbloqueá esta nave",
+              () =>
+                unlockedShips.includes("phantom")
+                  ? onSelectShip("phantom")
+                  : onBuyShip("phantom", 50),
               "#164E63"
             )}
           </View>
+
           <View style={styles.shipCard}>
-            <Text style={[styles.shipPreview, { color: "#C084FC" }]}>✦</Text>
+            <Text style={[styles.shipPreview, { color: "#C084FC" }]}>
+              ✦
+            </Text>
             <Text style={styles.shipName}>NEBULA</Text>
-            <Text style={styles.panelText}>Diseño violeta • 100 monedas</Text>
+            <Text style={styles.panelText}>
+              Diseño violeta • 100 monedas
+            </Text>
+
             {button(
-              selectedShip === "nebula" ? "✓ EQUIPADA" : unlockedShips.includes("nebula") ? "EQUIPAR" : "🪙 COMPRAR · 100",
-              unlockedShips.includes("nebula") ? "Ya es tuya" : "Desbloqueá esta nave",
-              () => unlockedShips.includes("nebula") ? onSelectShip("nebula") : onBuyShip("nebula", 100),
+              selectedShip === "nebula"
+                ? "✓ EQUIPADA"
+                : unlockedShips.includes("nebula")
+                  ? "EQUIPAR"
+                  : "🪙 COMPRAR · 100",
+              unlockedShips.includes("nebula")
+                ? "Ya es tuya"
+                : "Desbloqueá esta nave",
+              () =>
+                unlockedShips.includes("nebula")
+                  ? onSelectShip("nebula")
+                  : onBuyShip("nebula", 100),
               "#4C1D95"
             )}
           </View>
-          <Text style={styles.note}>Las naves compradas se guardan en este dispositivo.</Text>
-          {button("VOLVER", "Regresar al menú", () => setSection("home"))}
+
+          <Text style={styles.note}>
+            Las naves compradas se guardan en este dispositivo.
+          </Text>
+
+          {button(
+            "VOLVER",
+            "Regresar al menú",
+            () => setSection("home")
+          )}
         </View>
       )}
 
       {section === "settings" && (
         <View style={styles.panel}>
           <Text style={styles.panelTitle}>AJUSTES</Text>
-          <Text style={styles.panelText}>🎵 Música: próximamente</Text>
-          <Text style={styles.panelText}>🔊 Sonido: próximamente</Text>
+
+          <Text style={styles.panelText}>
+            🎵 Música: próximamente
+          </Text>
+
+          <Text style={styles.panelText}>
+            🔊 Sonido: próximamente
+          </Text>
+
           <Text style={styles.panelText}>
             🎮 Controles táctiles: activos
           </Text>
-          {button("VOLVER", "Regresar al menú", () =>
-            setSection("home")
+
+          {button(
+            "VOLVER",
+            "Regresar al menú",
+            () => setSection("home")
           )}
         </View>
       )}
 
-      <Text style={styles.footer}>NOVASTRIKE • VERSIÓN 1.0</Text>
+      <Text style={styles.footer}>
+        NOVASTRIKE • VERSIÓN 1.0
+      </Text>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: "#02030F" },
+  screen: {
+    flex: 1,
+    backgroundColor: "#02030F",
+  },
   container: {
     flexGrow: 1,
     paddingHorizontal: 22,
@@ -172,7 +276,9 @@ const styles = StyleSheet.create({
     marginTop: 8,
     letterSpacing: 1,
   },
-  logoAccent: { color: "#22D3EE" },
+  logoAccent: {
+    color: "#22D3EE",
+  },
   tagline: {
     color: "#94A3B8",
     textAlign: "center",
@@ -191,14 +297,21 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginBottom: 18,
   },
-  ship: { color: "#67E8F9", fontSize: 42 },
+  ship: {
+    color: "#67E8F9",
+    fontSize: 42,
+  },
   heroTitle: {
     color: "#FFFFFF",
     fontSize: 17,
     fontWeight: "bold",
     marginTop: 4,
   },
-  heroSubtitle: { color: "#94A3B8", fontSize: 12, marginTop: 5 },
+  heroSubtitle: {
+    color: "#94A3B8",
+    fontSize: 12,
+    marginTop: 5,
+  },
   button: {
     minHeight: 62,
     borderWidth: 1,
@@ -219,26 +332,41 @@ const styles = StyleSheet.create({
     fontSize: 11,
     marginTop: 3,
   },
-  stats: { flexDirection: "row", gap: 10, marginBottom: 10 },
+  stats: {
+    flexDirection: "row",
+    gap: 8,
+    marginBottom: 10,
+  },
   statCard: {
     flex: 1,
+    minWidth: 0,
     borderRadius: 12,
     paddingVertical: 13,
+    paddingHorizontal: 2,
     alignItems: "center",
     backgroundColor: "#101A30",
     borderWidth: 1,
     borderColor: "#243B55",
   },
-  statIcon: { fontSize: 23 },
+  statIcon: {
+    fontSize: 23,
+  },
   statLabel: {
     color: "#94A3B8",
-    fontSize: 10,
+    fontSize: 9,
     marginTop: 4,
     fontWeight: "bold",
+    textAlign: "center",
   },
   statValue: {
     color: "#FDE68A",
-    fontSize: 21,
+    fontSize: 20,
+    fontWeight: "bold",
+    marginTop: 3,
+  },
+  diamondValue: {
+    color: "#67E8F9",
+    fontSize: 20,
     fontWeight: "bold",
     marginTop: 3,
   },
@@ -257,11 +385,35 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 14,
   },
-  panelText: { color: "#FFFFFF", fontSize: 14, marginVertical: 8 },
-  shipCard: { backgroundColor: "#101A30", borderWidth: 1, borderColor: "#243B55", borderRadius: 12, padding: 12, marginVertical: 7 },
-  shipPreview: { fontSize: 42, textAlign: "center" },
-  shipName: { color: "#FFFFFF", fontSize: 17, fontWeight: "bold", textAlign: "center", marginTop: 4 },
-  note: { color: "#94A3B8", fontSize: 12, marginVertical: 12 },
+  panelText: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    marginVertical: 8,
+  },
+  shipCard: {
+    backgroundColor: "#101A30",
+    borderWidth: 1,
+    borderColor: "#243B55",
+    borderRadius: 12,
+    padding: 12,
+    marginVertical: 7,
+  },
+  shipPreview: {
+    fontSize: 42,
+    textAlign: "center",
+  },
+  shipName: {
+    color: "#FFFFFF",
+    fontSize: 17,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginTop: 4,
+  },
+  note: {
+    color: "#94A3B8",
+    fontSize: 12,
+    marginVertical: 12,
+  },
   footer: {
     color: "#475569",
     fontSize: 10,

@@ -4,13 +4,13 @@ export const GAME_HEIGHT = 844;
 export const PLAYER = {
   width: 42,
   height: 56,
-  speed: 40,
+  speed: 60,
   startLives: 3,
 };
 
 export const WORLD = {
   starCount: 80,
-  scrollSpeed: 70,
+  scrollSpeed: 80,
 };
 
 export const PROGRESSION = {
