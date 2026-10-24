@@ -31,7 +31,6 @@ export default function App() {
   const [ready, setReady] = useState(false);
   const [showLoading, setShowLoading] = useState(true);
 
-  // Cuenta los hitos alcanzados durante la partida actual.
   const awardedMilestonesRef = useRef(0);
 
   useEffect(() => {
@@ -96,9 +95,6 @@ export default function App() {
     };
   }, []);
 
-  // Los diamantes dependen de la puntuación de ESTA partida,
-  // no del récord histórico. El callback es estable para evitar
-  // renders repetidos en GameScreen.
   const handleScoreChange = useCallback((score: number) => {
     const safeScore = Math.max(0, Math.floor(score));
     const currentMilestone = Math.floor(
@@ -109,7 +105,6 @@ export default function App() {
       currentMilestone - awardedMilestonesRef.current;
 
     if (diamondsEarned > 0) {
-      // Actualizamos primero el hito para no otorgarlo dos veces.
       awardedMilestonesRef.current = currentMilestone;
 
       setDiamonds((currentDiamonds) => {
@@ -126,7 +121,6 @@ export default function App() {
       });
     }
 
-    // El récord se guarda independientemente de los diamantes.
     setBestScore((previousBest) => {
       if (safeScore <= previousBest) {
         return previousBest;
@@ -212,9 +206,7 @@ export default function App() {
   };
 
   const startGame = () => {
-    // Cada partida comienza contando los hitos desde cero.
     awardedMilestonesRef.current = 0;
-
     setGameKey((current) => current + 1);
     setScreen("game");
   };

@@ -1,4 +1,4 @@
-
+﻿
 import React, { useState } from "react";
 import {
   View,
@@ -54,18 +54,18 @@ export function MenuScreen({
       contentContainerStyle={styles.container}
       style={styles.screen}
     >
-      <Text style={styles.eyebrow}>SPACE COMBAT • MOBILE</Text>
+      <Text style={styles.eyebrow}>SPACE COMBAT â€¢ MOBILE</Text>
 
       <Text style={styles.logo}>
         NOVA<Text style={styles.logoAccent}>STRIKE</Text>
       </Text>
 
       <Text style={styles.tagline}>
-        LA GALAXIA TE ESTÁ ESPERANDO
+        LA GALAXIA TE ESTÃ ESPERANDO
       </Text>
 
       <View style={styles.hero}>
-        <Text style={styles.ship}>✦</Text>
+        <Text style={styles.ship}>âœ¦</Text>
         <Text style={styles.heroTitle}>PREPARA TU NAVE</Text>
         <Text style={styles.heroSubtitle}>
           Explora. Sobrevive. Conquista.
@@ -75,50 +75,55 @@ export function MenuScreen({
       {section === "home" && (
         <>
           {button(
-            "▶ JUGAR",
+            "â–¶ JUGAR",
             "Comenzar una nueva partida",
             onPlay,
             "#075985"
           )}
 
           {button(
-            "Ⅱ CONTINUAR",
+            "â…¡ CONTINUAR",
             "Retomar una partida guardada",
             () =>
               Alert.alert(
                 "CONTINUAR",
-                "El guardado de partidas todavía está en desarrollo. ¡Pronto podrás retomar tu aventura!"
+                "El guardado de partidas todavÃ­a estÃ¡ en desarrollo. Â¡Pronto podrÃ¡s retomar tu aventura!"
               )
           )}
 
           <View style={styles.stats}>
             <View style={styles.statCard}>
-              <Text style={styles.statIcon}>🪙</Text>
+              <Text style={styles.statIcon}>ðŸª™</Text>
               <Text style={styles.statLabel}>MONEDAS</Text>
               <Text style={styles.statValue}>{coins}</Text>
             </View>
 
             <View style={styles.statCard}>
-              <Text style={styles.statIcon}>💎</Text>
+              <Text style={styles.statIcon}>ðŸ’Ž</Text>
               <Text style={styles.statLabel}>DIAMANTES</Text>
               <Text style={styles.diamondValue}>{diamonds}</Text>
             </View>
 
             <View style={styles.statCard}>
-              <Text style={styles.statIcon}>🏆</Text>
-              <Text style={styles.statLabel}>RÉCORD</Text>
+              <Text style={styles.statIcon}>ðŸ’Ž</Text>
+              <Text style={styles.statLabel}>DIAMANTES</Text>
+              <Text style={styles.statValue}>{diamonds}</Text>
+            </View>
+            <View style={styles.statCard}>
+              <Text style={styles.statIcon}>ðŸ†</Text>
+              <Text style={styles.statLabel}>RÃ‰CORD</Text>
               <Text style={styles.statValue}>{bestScore}</Text>
             </View>
           </View>
 
           {button(
-            "🛒 TIENDA",
+            "ðŸ›’ TIENDA",
             "Naves, armas y mejoras",
             () => setSection("shop")
           )}
 
           {button(
-            "⚙ AJUSTES",
+            "âš™ AJUSTES",
             "Opciones de juego",
             () => setSection("settings")
           )}
@@ -127,27 +132,27 @@ export function MenuScreen({
 
       {section === "shop" && (
         <View style={styles.panel}>
-          <Text style={styles.panelTitle}>TIENDA GALÁCTICA</Text>
+          <Text style={styles.panelTitle}>TIENDA GALÃCTICA</Text>
 
           <Text style={styles.panelText}>
-            🪙 SALDO: {coins} monedas
+            ðŸª™ SALDO: {coins} monedas
           </Text>
 
           <Text style={styles.panelText}>
-            💎 DIAMANTES: {diamonds}
+            ðŸ’Ž DIAMANTES: {diamonds}
           </Text>
 
           <View style={styles.shipCard}>
             <Text style={[styles.shipPreview, { color: "#22D3EE" }]}>
-              ▲
+              â–²
             </Text>
             <Text style={styles.shipName}>NOVA</Text>
             <Text style={styles.panelText}>
-              Nave equilibrada • Gratis
+              Nave equilibrada â€¢ Gratis
             </Text>
 
             {button(
-              selectedShip === "nova" ? "✓ EQUIPADA" : "EQUIPAR",
+              selectedShip === "nova" ? "âœ“ EQUIPADA" : "EQUIPAR",
               "Nave inicial",
               () => onSelectShip("nova"),
               "#075985"
@@ -156,22 +161,22 @@ export function MenuScreen({
 
           <View style={styles.shipCard}>
             <Text style={[styles.shipPreview, { color: "#38BDF8" }]}>
-              ◆
+              â—†
             </Text>
             <Text style={styles.shipName}>PHANTOM</Text>
             <Text style={styles.panelText}>
-              Diseño azul • 50 monedas
+              DiseÃ±o azul â€¢ 50 monedas
             </Text>
 
             {button(
               selectedShip === "phantom"
-                ? "✓ EQUIPADA"
+                ? "âœ“ EQUIPADA"
                 : unlockedShips.includes("phantom")
                   ? "EQUIPAR"
-                  : "🪙 COMPRAR · 50",
+                  : "ðŸª™ COMPRAR Â· 50",
               unlockedShips.includes("phantom")
                 ? "Ya es tuya"
-                : "Desbloqueá esta nave",
+                : "DesbloqueÃ¡ esta nave",
               () =>
                 unlockedShips.includes("phantom")
                   ? onSelectShip("phantom")
@@ -182,22 +187,22 @@ export function MenuScreen({
 
           <View style={styles.shipCard}>
             <Text style={[styles.shipPreview, { color: "#C084FC" }]}>
-              ✦
+              âœ¦
             </Text>
             <Text style={styles.shipName}>NEBULA</Text>
             <Text style={styles.panelText}>
-              Diseño violeta • 100 monedas
+              DiseÃ±o violeta â€¢ 100 monedas
             </Text>
 
             {button(
               selectedShip === "nebula"
-                ? "✓ EQUIPADA"
+                ? "âœ“ EQUIPADA"
                 : unlockedShips.includes("nebula")
                   ? "EQUIPAR"
-                  : "🪙 COMPRAR · 100",
+                  : "ðŸª™ COMPRAR Â· 100",
               unlockedShips.includes("nebula")
                 ? "Ya es tuya"
-                : "Desbloqueá esta nave",
+                : "DesbloqueÃ¡ esta nave",
               () =>
                 unlockedShips.includes("nebula")
                   ? onSelectShip("nebula")
@@ -212,7 +217,7 @@ export function MenuScreen({
 
           {button(
             "VOLVER",
-            "Regresar al menú",
+            "Regresar al menÃº",
             () => setSection("home")
           )}
         </View>
@@ -223,27 +228,27 @@ export function MenuScreen({
           <Text style={styles.panelTitle}>AJUSTES</Text>
 
           <Text style={styles.panelText}>
-            🎵 Música: próximamente
+            ðŸŽµ MÃºsica: prÃ³ximamente
           </Text>
 
           <Text style={styles.panelText}>
-            🔊 Sonido: próximamente
+            ðŸ”Š Sonido: prÃ³ximamente
           </Text>
 
           <Text style={styles.panelText}>
-            🎮 Controles táctiles: activos
+            ðŸŽ® Controles tÃ¡ctiles: activos
           </Text>
 
           {button(
             "VOLVER",
-            "Regresar al menú",
+            "Regresar al menÃº",
             () => setSection("home")
           )}
         </View>
       )}
 
       <Text style={styles.footer}>
-        NOVASTRIKE • VERSIÓN 1.0
+        NOVASTRIKE â€¢ VERSIÃ“N 1.0
       </Text>
     </ScrollView>
   );
@@ -421,3 +426,5 @@ const styles = StyleSheet.create({
     marginTop: 18,
   },
 });
+
+
